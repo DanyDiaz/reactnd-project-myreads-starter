@@ -2,16 +2,11 @@ import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
 import BookShelf from './BookShelf'
+import SearchBooks from './SearchBooks'
 import {Link, Route} from 'react-router-dom'
 
 class BooksApp extends React.Component {
   state = {
-    /**
-     * TODO: Instead of using this state variable to keep track of which page
-     * we're on, use the URL in the browser's address bar. This will ensure that
-     * users can use the browser's back and forward buttons to navigate between
-     * pages, as well as provide a good URL they can bookmark and share.
-     */
     books: [],
     shelves: [
       {name: 'Currently Reading', nameId: 'currentlyReading'},
@@ -21,22 +16,33 @@ class BooksApp extends React.Component {
   }
 
   changeShelf = (book, newShelf) => {
-    //Update state
     const booksApp = this;
-    let booksAux = this.state.books;
-    let originalShelf = booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf;
-    booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf = newShelf;
+    let originalBooks = this.state.books;
+    let AuxBooks = this.state.books;
+    //If the shelf is 'none', then remove the book from the array
+    if(newShelf === 'none') {
+      AuxBooks = AuxBooks.filter(aBook => aBook.id !== book.id);
+    }
+    else {
+      //Set the new shelf to the book sent
+      book.shelf = newShelf;
+      //Add the book to the array if it does not exist
+      if(AuxBooks.filter(aBook => aBook.id === book.id).length <= 0) {
+        AuxBooks.push(book);
+      }
+      //Update the data in the array for the book
+      AuxBooks[AuxBooks.findIndex(aBook => aBook.id === book.id)] = book;
+    }
+    //Update state
     this.setState(() => ({
-      books: booksAux
+      books: AuxBooks
     }));
     //Update the shelf fo the book with the API
     BooksAPI.update(book, newShelf)
       .catch(function() {
-        alert('There was a problem modifying the shelf. Try again later.');
-        //If there was a problem, restore the original state
-        booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf = originalShelf;
+        alert('There was a problem modifying the shelf. Try again in a moment.');
         booksApp.setState(() => ({
-          books: booksAux
+          books: originalBooks
         }));
       });
   }
@@ -44,7 +50,7 @@ class BooksApp extends React.Component {
   componentDidMount() {
     BooksAPI.getAll().then(fetchedBooks => {
       //Load books information
-      this.setState((currentState) => ({
+      this.setState(() => ({
         books: fetchedBooks
       }));
     })
@@ -54,26 +60,11 @@ class BooksApp extends React.Component {
     return (
       <div className="app">
         <Route path='/search' render={() => (  
-          <div className="search-books">
-            <div className="search-books-bar">
-              <Link className="close-search" to='/'>Close</Link>
-              <div className="search-books-input-wrapper">
-                {/*
-                  NOTES: The search from BooksAPI is limited to a particular set of search terms.
-                  You can find these search terms here:
-                  https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
-
-                  However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
-                  you don't find a specific author or title. Every search is limited by search terms.
-                */}
-                <input type="text" placeholder="Search by title or author"/>
-
-              </div>
-            </div>
-            <div className="search-books-results">
-              <ol className="books-grid"></ol>
-            </div>
-          </div>
+          <SearchBooks
+            shelvesOptions={this.state.shelves}
+            myBooks={this.state.books}
+            changeShelfFunc={this.changeShelf}
+          />
         )} />
         <Route exact path='/' render={() => (
           <div className="list-books">
@@ -87,7 +78,7 @@ class BooksApp extends React.Component {
                       key={aShelf.nameId}
                       bookShelf={aShelf}
                       books={this.state.books.filter(book => book.shelf === aShelf.nameId)}
-                      shelvesOptions={this.state.shelves.filter(aShelf => aShelf.nameId.trim() !== '')}
+                      shelvesOptions={this.state.shelves}
                       changeShelfFunc={this.changeShelf}
                     />
                 ))}

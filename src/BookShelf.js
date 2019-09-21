@@ -10,7 +10,8 @@ class BookShelf extends Component {
                 <h2 className="bookshelf-title">{bookShelf.name}</h2>
                 <div className="bookshelf-books">
                 <ol className="books-grid">
-                    {books.map(aBook => (
+                    {books.length > 0  
+                    ? (books.map(aBook => (
                         <li key={aBook.id}>
                         <Book 
                             bookInformation={aBook} 
@@ -18,7 +19,10 @@ class BookShelf extends Component {
                             changeShelfFunc={changeShelfFunc}
                         />
                         </li>
-                    ))}
+                    )))
+                    : (<div>
+                        <i>No books in this shelf for the moment</i>
+                    </div>)}
                 </ol>
                 </div>
             </div>

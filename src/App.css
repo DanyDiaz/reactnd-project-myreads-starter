@@ -108,6 +108,7 @@ body, .app {
   background-position: center;
   background-repeat: no-repeat;
   background-size: 28px;
+  background-color: white;
   font-size: 0;
   border: none;
   outline: none;
@@ -120,6 +121,11 @@ button:active {
 
 .search-books-results {
   padding: 80px 10px 20px;
+}
+
+.no-books-message {
+  font-size: 1.25em;
+  text-align: center;
 }
 
 /* books grid */
@@ -189,6 +195,15 @@ button:active {
 .book-cover {
   box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
   background: #eee;
+}
+
+.book-no-image {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+  background: #eee;
+  width: 128px;
+  height: 193px;
+  background-image: url('./icons/no-image.jpg');
+  background-size: contain;
 }
 
 .book-cover-title {
