@@ -2,18 +2,25 @@ import React, {Component} from 'react'
 
 class Book extends Component {
     render() {
-        let {bookInformation} = this.props;
+        let {bookInformation, shelvesOptions, changeShelfFunc} = this.props;
         
         return (
             <div className="book">
                 <div className="book-top">
-                <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${bookInformation.imageLinks.thumbnail}")` }}></div>
+                <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url("${bookInformation.imageLinks.smallThumbnail}")` }}></div>
                 <div className="book-shelf-changer">
-                    <select>
+                    <select 
+                        value={bookInformation.shelf}
+                        onChange={(event) => changeShelfFunc(bookInformation, event.target.value)}
+                         >
                         <option value="move" disabled>Move to...</option>
-                        <option value="currentlyReading">Currently Reading</option>
-                        <option value="wantToRead">Want to Read</option>
-                        <option value="read">Read</option>
+                        {shelvesOptions.map(shelfOption => (
+                            <option 
+                                key={shelfOption.nameId}
+                                value={shelfOption.nameId} >
+                                {shelfOption.name}
+                            </option>    
+                        ))}
                         <option value="none">None</option>
                     </select>
                 </div>
@@ -25,4 +32,4 @@ class Book extends Component {
     }
 }
 
-export default Book;
+export default Book

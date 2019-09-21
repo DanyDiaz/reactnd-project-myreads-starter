@@ -1,7 +1,7 @@
 import React from 'react'
 import * as BooksAPI from './BooksAPI'
 import './App.css'
-import Book from './Book'
+import BookShelf from './BookShelf'
 
 class BooksApp extends React.Component {
   state = {
@@ -12,12 +12,38 @@ class BooksApp extends React.Component {
      * pages, as well as provide a good URL they can bookmark and share.
      */
     showSearchPage: false,
-    books: []
+    books: [],
+    shelves: [
+      {name: 'Currently Reading', nameId: 'currentlyReading'},
+      {name: 'Want to Read', nameId: 'wantToRead'},
+      {name: 'Read', nameId: 'read'}
+    ]
+  }
+
+  changeShelf = (book, newShelf) => {
+    //Update state
+    const booksApp = this;
+    let booksAux = this.state.books;
+    let originalShelf = booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf;
+    booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf = newShelf;
+    this.setState(() => ({
+      books: booksAux
+    }));
+    //Update the shelf fo the book with the API
+    BooksAPI.update(book, newShelf)
+      .catch(function() {
+        alert('There was a problem modifying the shelf. Try again later.');
+        //If there was a problem, restore the original state
+        booksAux[booksAux.findIndex(aBook => aBook.id === book.id)].shelf = originalShelf;
+        booksApp.setState(() => ({
+          books: booksAux
+        }));
+      });
   }
   
   componentDidMount() {
     BooksAPI.getAll().then(fetchedBooks => {
-      console.log('fetchedBooks', fetchedBooks); /****Delete this ******/
+      //Load books information
       this.setState((currentState) => ({
         books: fetchedBooks
       }));
@@ -55,45 +81,15 @@ class BooksApp extends React.Component {
             </div>
             <div className="list-books-content">
               <div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Currently Reading</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                      {this.state.books.filter(aBook => aBook.shelf === 'currentlyReading')
-                        .map(aBook => (
-                          <li key={aBook.id}>
-                            <Book bookInformation={aBook} />
-                          </li>
-                        ))}
-                    </ol>
-                  </div>
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Want to Read</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                    {this.state.books.filter(aBook => aBook.shelf === 'wantToRead')
-                        .map(aBook => (
-                          <li key={aBook.id}>
-                            <Book bookInformation={aBook} />
-                          </li>
-                        ))}
-                    </ol>
-                  </div>
-                </div>
-                <div className="bookshelf">
-                  <h2 className="bookshelf-title">Read</h2>
-                  <div className="bookshelf-books">
-                    <ol className="books-grid">
-                    {this.state.books.filter(aBook => aBook.shelf === 'read')
-                        .map(aBook => (
-                          <li key={aBook.id}>
-                            <Book bookInformation={aBook} />
-                          </li>
-                        ))}
-                    </ol>
-                  </div>
-                </div>
+                {this.state.shelves.map(aShelf => (
+                    <BookShelf 
+                      key={aShelf.nameId}
+                      bookShelf={aShelf}
+                      books={this.state.books.filter(book => book.shelf === aShelf.nameId)}
+                      shelvesOptions={this.state.shelves.filter(aShelf => aShelf.nameId.trim() !== '')}
+                      changeShelfFunc={this.changeShelf}
+                    />
+                ))}
               </div>
             </div>
             <div className="open-search">
