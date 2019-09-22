@@ -123,7 +123,7 @@ button:active {
   padding: 80px 10px 20px;
 }
 
-.no-books-message {
+.general-message {
   font-size: 1.25em;
   text-align: center;
 }
@@ -188,6 +188,14 @@ button:active {
   height: 100%;
   opacity: 0;
   cursor: pointer;
+}
+
+.book-shelf-changer:focus-within,
+.open-search:focus-within,
+.close-search:focus {
+  outline: 0;
+  box-shadow: 0 0 4px 4px #1e90ff;
+  text-decoration: none;
 }
 
 /* book cover */
